@@ -1,14 +1,14 @@
 # scripts/build_local_index.py
 
+import os
 import jsonlines
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from pathlib import Path
 import json
 import torch
-import os
 
-# Quiet TensorFlow logs if they appear
+# Suppress TensorFlow logs
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 # Paths
@@ -33,7 +33,7 @@ model = SentenceTransformer("all-MiniLM-L6-v2", device=device)
 print("Computing embeddings (this may take a moment)...")
 embs = model.encode(
     texts,
-    batch_size=8,
+    batch_size=len(texts),        # one batch for small corpora
     show_progress_bar=True,
     convert_to_numpy=True
 )
@@ -43,4 +43,4 @@ print(f"Saving embeddings to {emb_path} and IDs to {ids_path}...")
 np.save(emb_path, embs)
 with open(ids_path, "w", encoding="utf-8") as f:
     json.dump(ids, f, ensure_ascii=False, indent=2)
-print(f"✅ Saved {len(ids)} embeddings.")
+print("✅ Saved embeddings and IDs.")
